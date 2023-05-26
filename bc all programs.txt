@@ -1,0 +1,516 @@
+1.abstraction
+
+pragma solidity^0.8.0;
+contract Member{
+    string name;
+    uint age=30;
+    function setName() public virtual returns (string memory) {}
+    function reurnage() public view returns(uint){
+        return age;
+    }
+
+}
+contract Teacher is Member{
+    function setName() public override view returns (string memory){
+        return "Shlok";
+    }
+}
+ 
+2.error handling
+
+pragma solidity^0.8.0;
+
+contract Vendor{
+    address public seller;
+    modifier onlySeller(){
+        require(
+            msg.sender == seller,
+            "Only seller can call this"
+        );
+        _;
+}
+
+function sell(uint amount) public payable onlySeller{
+    if (amount > msg.value / 2 ether)
+    revert("Not enough Ether provided.");
+}
+}
+
+3.fallback function
+pragma solidity ^0.8.0; 
+  
+contract FallBack {     event Log(uint gas);     fallback () external payable {        
+     emit 
+Log(gasleft());  
+    }  
+  
+    function getBalance() public view returns(uint) {         
+        return address(this).balance;  
+    }  
+}  
+  
+contract SendToFallBack {  
+    function transferToFallBack(address payable _to) public payable{        
+         _to.transfer(msg.value);  
+    }  
+  
+    function callFallBack(address payable _to) public payable {  
+        (bool sent, ) = _to.call{value:msg.value}('');        
+         require(sent, 'Failed to send!');  
+    }  
+}  
+
+
+4.function overloading
+pragma solidity ^0.8.0;  
+  
+
+contract FunctionOverloading{  
+    function getSum(uint a, uint b) public pure returns(uint){         
+        return a + b;  
+    }  
+  
+    function getSum(uint a, uint b, uint c) public pure returns(uint){         
+        return a + b + c;  
+    }  
+    function getSumTwoArgs() public pure returns(uint) {        
+         return getSum(2,3);  
+    }  
+    function getSumThreeArgs() public pure returns(uint) {         
+        return getSum(3,2,1);  
+    }  
+    function getSum(string memory a, string memory b) public pure returns(string memory){   
+        return string(abi.encodePacked(a, b));  
+    }  
+}  
+
+
+5.arithmatic function
+pragma solidity ^0.5.0;
+contract FinalExercise{
+    uint a = 300;
+    uint b = 12;
+    uint f = 47;
+    function finalize() public view returns(uint){
+       uint d = 23;
+
+        if(a > b && b<f){
+           d *=d;
+           return d-b;
+        }else{
+           return d;
+        }
+    }
+
+}
+
+pract 1 arithmatic operations
+pragma solidity ^0.8.0;
+contract calculator{
+    uint a;
+    uint b;
+
+    function firstNumber(uint x) public{
+        a=x;
+    }
+
+    function secondNumber(uint y) public{
+        b=y;
+    }
+
+    function addition() public view returns(uint){
+        return a+b;
+    }
+
+    function subtraction() public view returns(uint){
+        if(a>b){
+            return a-b;
+        }else{
+            return b-a;
+        }
+    }
+
+    function multiplication() public view returns(uint){
+        return a*b;
+    }
+
+    function division() public view returns(uint){
+        if(a>b){
+            return a/b;
+        }else{
+            return b/a;
+        }
+    }
+
+    function modulus() public view returns(uint){
+        return a%b;
+        }
+
+
+
+6.calculator
+pragma solidity^0.8.0;
+
+contract Calculator{
+    function getResult() public virtual view returns(uint){}
+}
+
+contract Test is Calculator{
+    function getResult() public override view returns(uint){
+        uint a=1;
+        uint b=5;
+        uint result = a+b;
+        return result;
+    }
+}
+
+
+7.constructor
+pragma solidity ^0.5.0;
+
+contract enumLearn{
+
+    enum shirtColor {RED, WHITE, BLUE}
+    shirtColor choice;
+    shirtColor constant defaultChoice = shirtColor.BLUE;
+
+    // enum frenchfries {SMALL, MEDIUM, LARGE}
+
+
+    function setWhite() public {
+        choice = shirtColor.WHITE;
+    }
+
+    function getChoice() public view returns(shirtColor){
+        return choice;
+    }
+
+    function getDefaultChoice() public view returns(uint){
+        return uint(defaultChoice);
+    }
+}
+
+8.enum
+pragma solidity ^0.8.0;
+
+contract learnEnum{
+    enum shirtColor {RED, WHITE, BLUE}
+    shirtColor defaultChoice = shirtColor.BLUE;
+    shirtColor choice;
+
+    function setWHITE() public{
+        choice = shirtColor.WHITE;
+    }
+
+    function getChoice() public view returns (shirtColor){
+        return choice;
+    }
+
+    function getDefaultChoice() public view returns(shirtColor){
+        return defaultChoice;
+    }
+}
+
+9.escrow 
+pragma solidity ^0.8.0; 
+
+contract escrow{
+ 
+    address payable public buyer;
+    address payable public seller;
+    address payable public arbiter;
+     
+    
+    enum State{
+         
+        
+        awate_payment, awate_delivery, complete
+    }
+ 
+    
+    State public state;
+     
+ 
+    modifier instate(State expected_state){
+         
+        require(state == expected_state);
+        _;
+    }
+ 
+   
+    modifier onlyBuyer(){
+        require(msg.sender == buyer ||
+                msg.sender == arbiter);
+        _;
+    }
+ 
+    
+    modifier onlySeller(){
+        require(msg.sender == seller);
+        _;
+    }
+     
+    
+    constructor(address payable _buyer,
+                address payable _sender){
+         
+       
+        arbiter = payable(msg.sender);
+        buyer = _buyer;
+        seller = _sender;
+        state = State.awate_payment;
+    }
+     
+    
+    function confirm_payment() onlyBuyer instate(
+        State.awate_payment) public payable{
+        state = State.awate_delivery;
+    }
+     
+
+    function confirm_Delivery() onlyBuyer instate(
+        State.awate_delivery) public{
+        seller.transfer(address(this).balance);
+        state = State.complete;
+    }
+ 
+    function ReturnPayment() onlySeller instate(
+        State.awate_delivery)public{
+        buyer.transfer(address(this).balance);
+    }
+}
+
+
+10.inheritance
+pragma solidity^0.8.0;
+contract A{
+    uint innerval = 100;
+    //constant
+    function innerAddTen(uint val)public pure returns(uint){
+        return val+10;
+    }
+
+}
+//is means inherit from
+contract B is A{
+    function outerAddTen(uint val)public pure returns(uint){
+        return A.innerAddTen(val);
+    }
+    function getInnerval()public view returns (uint){
+        return A.innerval;  
+    }
+}
+
+11.interface
+pragma solidity^0.8.0;
+
+contract Counter{
+    uint public count;
+    function increment() external{
+        count+=1;
+    }
+}
+
+interface ICounter{
+    function count() external view returns(uint);
+    function increment() external;
+}
+
+contract MyContract{
+    function incrementCounter(address _counter) external{
+        ICounter(_counter).increment();
+    } 
+    function getCount(address _counter) external view returns(uint){
+        return ICounter(_counter).count();
+    }
+}
+
+
+12.loops 
+pragma solidity ^0.5.0;
+contract myLoopingPracticeContract{
+    uint[] longlist;
+    uint[] numberList = [1, 4, 34, 56];
+   constructor() public {
+        for (uint i = 1; i <= 20; i++) {
+            longlist.push(i);
+        }
+    }
+    function numberExists(uint number) public view returns (bool){
+        for (uint i = 0; i < numberList.length; i++){
+            if (numberList[i] == number){
+                return true;
+            }
+        }
+        return false;
+    }
+    function checkEvenNumbers() public view returns (uint){
+        uint count = 0;
+        for (uint i = 0; i < longlist.length; i++){
+            if (longlist[i] % 2 == 0){
+                count++;
+            }
+        }
+        return count;
+    }
+}
+
+
+13.mapping
+pragma solidity ^0.5.0;
+contract learnMapping{
+    mapping(address => uint) public myMap;
+
+    function getAddress(address _address) public view returns(uint){
+        return myMap[_address];
+    }
+    function set(address _address, uint _i) public{
+        myMap[_address]= _i;
+    }
+    function remove(address _address) public{
+        delete myMap[_address];
+    }
+}
+
+14.mobile tracking
+pragma solidity ^0.8.0;
+
+contract MobileDeviceTracker {
+
+    struct Device {
+        string id;
+        address owner;
+        string location;
+    }
+
+    mapping (string => Device) devices;
+
+    function registerDevice(string memory _id, string memory _location) public {
+        require(devices[_id].owner == address(0), "Device already registered");
+        devices[_id] = Device(_id, msg.sender, _location);
+    }
+
+    function transferDevice(string memory _id, address _newOwner) public {
+        require(devices[_id].owner == msg.sender, "Only device owner can transfer");
+        devices[_id].owner = _newOwner;
+    }
+
+    function updateLocation(string memory _id, string memory _location) public {
+        require(devices[_id].owner == msg.sender, "Only device owner can update location");
+        devices[_id].location = _location;
+    }
+
+    function getDevice(string memory _id) public view returns (string memory, address, string memory) {
+        Device memory device = devices[_id];
+        return (device.id, device.owner, device.location);
+    }
+}
+
+
+15.strings
+pragma solidity ^0.8.0;
+
+contract Strings{
+    string favouriteColor = "Blue";
+
+    function getFavouriteColor() public view returns (string memory){
+        return favouriteColor;
+    }
+
+    function changeFavouriteColor(string memory color) public {
+        favouriteColor = color;
+    }
+
+    function numOfCharsInColor() public view returns (uint){
+        bytes memory stringToBytes = bytes(favouriteColor);
+        return stringToBytes.length;
+    }
+} 
+
+
+16.struct
+pragma solidity ^0.8.0;
+
+contract learnStructs{
+    struct Movie{
+        string movieName;
+        string movieDirector;
+        string movieCast;
+    }
+
+    Movie firstMarvelMovie;
+
+    function setMovie() public{
+        firstMarvelMovie = Movie("Iron Man", "Russo Brothers", "RDJ");
+    }
+
+    function getMovieName() public view returns (string memory){
+        return firstMarvelMovie.movieName;
+    }
+
+    function getMovieDirector() public view returns (string memory){
+        return firstMarvelMovie.movieDirector;
+    }
+
+    function getMovieCast() public view returns (string memory){
+        return firstMarvelMovie.movieCast;
+    }
+}
+
+17.test 
+pragma solidity ^0.5.0;
+
+contract learnString{
+    string greetings = 'hello';
+    string favouriteColor = 'blue';
+
+    function sayHello() public view returns(string memory){
+        return greetings;
+    }
+
+    function changeGreetings(string memory change) public{
+        greetings = change;
+    }
+
+    function getStringLength() public view returns(uint){
+        bytes memory stringToBytes= bytes(greetings);
+        return stringToBytes.length;
+    }
+    function getcolor() public view returns (string memory){
+        return favouriteColor;
+    }
+    function changeColor(string memory change) public{
+        favouriteColor = change;
+    }
+    function getColorStringLength() public view returns(uint){
+        bytes memory stringToByte= bytes(favouriteColor);
+        return stringToByte.length;
+    }
+}
+
+18.view and pure function
+pragma solidity ^0.8.0; 
+contract 
+MyContract {      
+    uint value;  
+  
+    function getValue() external view returns(uint){  
+ 
+    }  
+  
+    function getNewValue() external pure returns(uint){  
+      
+    }  
+  
+    function setValue(uint _value) external {        
+         value = _value;  
+          }  
+    function Productoftwonumbers() external pure returns(uint){         
+        return 3*7;  
+    }  
+    function Sum() external view returns(uint){         
+        return value + 3;  
+    }  
+}  
+
+
